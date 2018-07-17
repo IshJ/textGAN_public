@@ -198,6 +198,7 @@ def textGAN(x, opt):
     # *tf.cast(tf.not_equal(x_temp,0), tf.float32)
     tf.summary.scalar('D_loss', D_loss)
     tf.summary.scalar('G_loss', G_loss)
+
     summaries = [
         "learning_rate",
         # "G_loss",

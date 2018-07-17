@@ -21,18 +21,18 @@ Yizhe Zhang, Zhe Gan, Lawrence Carin.  Workshop on Adversarial Training, NIPS,
 	* cPickle
 
 
-# Data link
+## Data link
 [Three_corpus](https://drive.google.com/open?id=0B52eYWrYWqIpd2o2T1E3aUU0cEk)
  
 [Arxiv only](https://drive.google.com/file/d/1C3Eg9s3QTR81Uy1glIld1VjJresN--4r/view?usp=sharing)
 
-# Pretrained parameter
+## Pretrained parameter
 http://people.duke.edu/~yz196/zip/param.zip
 
-# Evaluation
+## Evaluation
 * (Theano only) `python eval_kde.py`
 
-# Citation
+## Citation
 Please cite our paper if it helps with your research.
 
 * Arxiv link: [https://arxiv.org/abs/1706.03850](https://arxiv.org/abs/1706.03850)

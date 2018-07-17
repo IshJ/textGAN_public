@@ -4,3 +4,4 @@ __pycache__
 log/
 rec_train_words.txt
 rec_val_words.txt
+save/

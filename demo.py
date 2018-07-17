@@ -24,8 +24,6 @@ from utils import prepare_data_for_cnn, prepare_data_for_rnn, get_minibatches_id
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib import layers
-# import tempfile
-# from tensorflow.examples.tutorials.mnist import input_data
 import logging
 
 logger = logging.getLogger()
@@ -204,7 +202,7 @@ def main():
         print('No embedding file found.')
         opt.fix_emb = False
 
-    with tf.device('/gpu:1'):
+    with tf.device('/gpu:0'):
         x_ = tf.placeholder(tf.int32, shape=[opt.batch_size, opt.sent_len])
         x_org_ = tf.placeholder(tf.int32, shape=[opt.batch_size, opt.sent_len])
         res_, loss_, train_op = auto_encoder(x_, x_org_, opt)

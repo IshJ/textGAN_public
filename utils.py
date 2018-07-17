@@ -250,7 +250,7 @@ def get_minibatches_idx(n, minibatch_size, shuffle=False):
 #     return normalized   
 
 def normalizing(x, axis):
-    norm = tf.sqrt(tf.reduce_sum(tf.square(x), axis=axis, keep_dims=True))
+    norm = tf.sqrt(tf.reduce_sum(tf.square(x), axis=axis, keepdims=True))
     normalized = x / (norm)
     return normalized
 
