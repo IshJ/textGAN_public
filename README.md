@@ -1,4 +1,4 @@
-# textGAN (Adversarial Feature Matching for Text Generation)
+# (forked) textGAN (Adversarial Feature Matching for Text Generation)
 Theano and tensorflow implementation for 
 
 * **Adversarial Feature Matching for Text Generation**,
@@ -6,25 +6,18 @@ Yizhe Zhang, Zhe Gan, Kai Fan, Zhi Chen, Ricardo Henao, Lawrence Carin. ICML, 20
 * **Generating Text via Adversarial Training.**
 Yizhe Zhang, Zhe Gan, Lawrence Carin.  Workshop on Adversarial Training, NIPS, 2016.
 
-## Run 
-* (Theano) Run: 
 
-`THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python textGAN.py`
+## Run
 
-* (Tensorflow) Run: 
+(Tensorflow) Run: 
 
 `python textGAN.py`
 
 
 ## Prerequisite
-* Theano: 
-	* Theono >= 0.8
-	* cPickle
-	* cuda version 8.0
-	* foxhound
-	
+* Python3
 * Tensorflow: 
-	* Tensorflow version == 1.2
+	* Tensorflow version >= 1.2
 	* cPickle
 
 
