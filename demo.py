@@ -6,6 +6,7 @@ TextCNN
 ## 152.3.214.203/6006
 
 import os
+import pdb
 
 from denoise import add_noise
 from model import embedding, conv_model_4layer, conv_model_3layer, conv_model, deconv_model_4layer, deconv_model_3layer, \
@@ -177,12 +178,15 @@ def auto_encoder(x, x_org, opt, opt_t=None):
 def main():
     # global n_words
     # Prepare training and testing data
-    loadpath = "./data/hotel_reviews.p"
-    x = cPickle.load(open(loadpath, "rb"))
-    train, val = x[0], x[1]
-    wordtoix, ixtoword = x[2], x[3]
+    loadpath = "data/real_cotra.txt"
+    x = np.loadtxt(loadpath)
+    train, val = x[:78000], x[78000:]
+
+    ixtoword, wordtoix = cPickle.load(open('data/vocab_cotra.pkl', 'rb'))
+    ixtoword = {i: x for i, x in enumerate(ixtoword)}
+
     train = [list(s) for s in train]
-    test = [list(s) for s in val]
+    val = [list(s) for s in val]
     opt = Options()
     opt.n_words = len(ixtoword) + 1
     ixtoword[opt.n_words - 1] = 'GO_'
