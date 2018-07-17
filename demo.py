@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Yizhe Zhang
 
@@ -8,6 +7,10 @@ TextCNN
 
 import os
 
+from denoise import add_noise
+from model import embedding, conv_model_4layer, conv_model_3layer, conv_model, deconv_model_4layer, deconv_model_3layer, \
+    deconv_model, discriminator
+
 GPUID = 1
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUID)
 
@@ -15,16 +18,18 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUID)
 # from tensorflow.contrib.learn import monitors
 # from tensorflow.contrib.learn.python.learn.metric_spec import MetricSpec
 from six.moves import cPickle
-
-from model import *
+from tensorflow.contrib import framework
 from utils import prepare_data_for_cnn, prepare_data_for_rnn, get_minibatches_idx, normalizing, restore_from_save, \
     prepare_for_bleu, cal_BLEU
-from denoise import *
-
+import numpy as np
+import tensorflow as tf
+from tensorflow.contrib import layers
 # import tempfile
 # from tensorflow.examples.tutorials.mnist import input_data
+import logging
 
-logging.set_verbosity(logging.INFO)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 # Basic model parameters as external flags.
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -75,14 +80,14 @@ class Options(object):
         self.H_dis = 300
 
         self.sent_len = self.maxlen + 2 * (self.filter_shape - 1)
-        self.sent_len2 = np.int32(floor((self.sent_len - self.filter_shape) / self.stride[0]) + 1)
-        self.sent_len3 = np.int32(floor((self.sent_len2 - self.filter_shape) / self.stride[1]) + 1)
-        self.sent_len4 = np.int32(floor((self.sent_len3 - self.filter_shape) / self.stride[2]) + 1)
+        self.sent_len2 = np.int32(np.floor((self.sent_len - self.filter_shape) / self.stride[0]) + 1)
+        self.sent_len3 = np.int32(np.floor((self.sent_len2 - self.filter_shape) / self.stride[1]) + 1)
+        self.sent_len4 = np.int32(np.floor((self.sent_len3 - self.filter_shape) / self.stride[2]) + 1)
         print('Use model %s' % self.model)
         print('Use %d conv/deconv layers' % self.layer)
 
     def __iter__(self):
-        for attr, value in self.__dict__.iteritems():
+        for attr, value in self.__dict__.items():
             yield attr, value
 
 

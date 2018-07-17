@@ -1,7 +1,7 @@
-from __future__ import division
 import collections
 
 import six
+
 
 def _ngrams(words, n):
     queue = collections.deque(maxlen=n)
@@ -10,11 +10,14 @@ def _ngrams(words, n):
         if len(queue) == n:
             yield tuple(queue)
 
+
 def _ngram_counts(words, n):
     return collections.Counter(_ngrams(words, n))
 
+
 def _ngram_count(words, n):
     return max(len(words) - n + 1, 0)
+
 
 def _counter_overlap(counter1, counter2):
     result = 0
@@ -22,11 +25,13 @@ def _counter_overlap(counter1, counter2):
         result += min(v, counter2[k])
     return result
 
+
 def _safe_divide(numerator, denominator):
     if denominator > 0:
         return numerator / denominator
     else:
         return 0
+
 
 def _safe_f1(matches, recall_total, precision_total, alpha):
     recall_score = _safe_divide(matches, recall_total)
@@ -36,6 +41,7 @@ def _safe_f1(matches, recall_total, precision_total, alpha):
         return (precision_score * recall_score) / denom
     else:
         return 0.0
+
 
 def rouge_n(peer, models, n, alpha):
     """
@@ -52,12 +58,14 @@ def rouge_n(peer, models, n, alpha):
     precision_total = len(models) * _ngram_count(peer, n)
     return _safe_f1(matches, recall_total, precision_total, alpha)
 
+
 def rouge_1(peer, models, alpha):
     """
     Compute the ROUGE-1 (unigram) score of a peer with respect to one or more
     models.
     """
     return rouge_n(peer, models, 1, alpha)
+
 
 def rouge_2(peer, models, alpha):
     """
@@ -66,12 +74,14 @@ def rouge_2(peer, models, alpha):
     """
     return rouge_n(peer, models, 2, alpha)
 
+
 def rouge_3(peer, models, alpha):
     """
     Compute the ROUGE-3 (trigram) score of a peer with respect to one or more
     models.
     """
     return rouge_n(peer, models, 3, alpha)
+
 
 def lcs(a, b):
     """
@@ -107,6 +117,7 @@ def lcs(a, b):
             diag = up
     # Return the last cell of the last row
     return left
+
 
 def rouge_l(peer, models, alpha):
     """

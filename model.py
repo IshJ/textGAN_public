@@ -9,7 +9,6 @@ from tensorflow.contrib import layers
 from tensorflow.contrib.legacy_seq2seq import sequence_loss
 # from tensorflow.contrib.learn import monitors
 from tensorflow.contrib.seq2seq.python.ops import beam_search_decoder
-# from tensorflow.contrib.seq2seq.python.ops import beam_search_decoder
 # from tensorflow.contrib.seq2seq.python.ops import beam_search_ops
 from tensorflow.contrib.seq2seq.python.ops import decoder
 from tensorflow.python.framework import ops

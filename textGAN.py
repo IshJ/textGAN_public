@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Yizhe Zhang
 
@@ -11,19 +10,19 @@ import os
 GPUID = 1
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUID)
 
-# from tensorflow.contrib import metrics
-# from tensorflow.contrib.learn import monitors
-# from tensorflow.contrib.learn.python.learn.metric_spec import MetricSpec
-from six.moves import cPickle
+from denoise import add_noise
+from model import embedding_only, discriminator_2layer, conv_model_3layer, conv_model, lstm_decoder_embedding, \
+    compute_MMD_loss
 
-from model import *
+from six.moves import cPickle
+import tensorflow as tf
+import numpy as np
+from tensorflow.contrib import layers
 from utils import prepare_data_for_cnn, get_minibatches_idx, restore_from_save, \
     prepare_for_bleu, cal_BLEU, _clip_gradients_seperate_norm
-from denoise import *
 
 profile = False
-# import tempfile
-# from tensorflow.examples.tutorials.mnist import input_data
+
 import logging
 
 logger = logging.getLogger()
@@ -38,7 +37,7 @@ FLAGS = flags.FLAGS
 
 
 class Options(object):
-    def __init__(self, nwords):
+    def __init__(self):
         self.dis_steps = 10
         self.gen_steps = 1
         self.fix_emb = False
@@ -57,8 +56,7 @@ class Options(object):
         self.cnn_b = None
         self.maxlen = 41
 
-        self.n_words = nwords
-        assert self.n_words
+        self.n_words = None
 
         self.filter_shape = 5
         self.filter_size = 300
@@ -101,9 +99,9 @@ class Options(object):
         self.H_dis = 300
 
         self.sent_len = self.maxlen + 2 * (self.filter_shape - 1)
-        self.sent_len2 = np.int32(floor((self.sent_len - self.filter_shape) / self.stride[0]) + 1)
-        self.sent_len3 = np.int32(floor((self.sent_len2 - self.filter_shape) / self.stride[1]) + 1)
-        self.sent_len4 = np.int32(floor((self.sent_len3 - self.filter_shape) / self.stride[2]) + 1)
+        self.sent_len2 = np.int32(np.floor((self.sent_len - self.filter_shape) / self.stride[0]) + 1)
+        self.sent_len3 = np.int32(np.floor((self.sent_len2 - self.filter_shape) / self.stride[1]) + 1)
+        self.sent_len4 = np.int32(np.floor((self.sent_len3 - self.filter_shape) / self.stride[2]) + 1)
         self.sentence = self.maxlen - 1
         print('Use model %s' % self.model)
         print('Use %d conv/deconv layers' % self.layer)
@@ -215,6 +213,7 @@ def textGAN(x, opt):
     d_vars = [var for var in all_vars if
               var.name.startswith('d_')]
     print([g.name for g in g_vars])
+
     generator_op = layers.optimize_loss(
         G_loss,
         global_step=global_step,
@@ -265,7 +264,7 @@ def run_model(opt, train, val, ixtoword):
         print('No embedding file found.')
         opt.fix_emb = False
 
-    with tf.device('/gpu:1'):
+    with tf.device('/gpu:0'):
         x_ = tf.placeholder(tf.int32, shape=[opt.batch_size, opt.sent_len])
         x_org_ = tf.placeholder(tf.int32, shape=[opt.batch_size, opt.sent_len])
         is_train_ = tf.placeholder(tf.bool, name='is_train_')
@@ -295,8 +294,6 @@ def run_model(opt, train, val, ixtoword):
         sess.run(tf.global_variables_initializer())
         if opt.restore:
             try:
-                # pdb.set_trace()
-
                 t_vars = tf.trainable_variables()
                 # print([var.name[:-2] for var in t_vars])
                 loader = restore_from_save(t_vars, sess, opt)
@@ -373,7 +370,7 @@ def run_model(opt, train, val, ixtoword):
                         np.median([((x - y) ** 2).sum() for x in res['real_f'] for y in res['real_f']]))
                     print("Iteration %d: d_loss %f, g_loss %f, mean_dist %f, realdist median %f" % (
                         uidx, d_loss, g_loss, res['mean_dist'], median_dis))
-                    np.savetxt('./data/rec_train_words.txt', res['syn_sent'], fmt='%i', delimiter=' ')
+                    np.savetxt('./text/rec_train_words.txt', res['syn_sent'], fmt='%i', delimiter=' ')
                     print("Sent:" + ' '.join([ixtoword[x] for x in res['syn_sent'][0] if x != 0]).strip())
 
                     summary = sess.run(merged, feed_dict={x_: x_batch})
@@ -395,11 +392,12 @@ def main():
     # loadpath = "./data/three_corpus_small.p"
     loadpath = "data/real_cotra.txt"
     x = np.loadtxt(loadpath)
-    train, val = x[:88550], x[88550:]
+    train, val = x[:78000], x[78000:]
     ixtoword, _ = cPickle.load(open('data/vocab_cotra.pkl', 'rb'))
 
     ixtoword = {i: x for i, x in enumerate(ixtoword)}
-    opt = Options(nwords=len(ixtoword))
+    opt = Options()
+    opt.n_words = len(ixtoword)
 
     print(dict(opt))
     print('Total words: %d' % opt.n_words)
